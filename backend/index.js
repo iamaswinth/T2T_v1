@@ -3,8 +3,9 @@ import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
-// Utiles
+// Utils
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -18,9 +19,24 @@ const port = process.env.PORT || 5000;
 connectDB();
 
 const app = express();
-import cors from "cors";
 
-app.use(cors());
+// === CORS CONFIG START ===
+const allowedOrigins = [
+  "http://localhost:5173",             // Local dev
+  "https://t2-t-v1.vercel.app",        // Your frontend on Vercel
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
+
+// Handle preflight
+app.options("*", cors());
+// === CORS CONFIG END ===
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,4 +55,4 @@ app.get("/api/config/paypal", (req, res) => {
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname + "/uploads")));
 
-app.listen(port, () => console.log(`Server running on port: ${port}`));
+app.listen(port, () => console.log(`✅ Server running on port: ${port}`));
